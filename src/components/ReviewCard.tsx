@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { CustomerReview } from "@/hooks/useCustomerReviews";
 import { cn } from "@/lib/utils";
+import { photo, SIZES } from "@/lib/photo";
 
 const formatDate = (d: string) => {
   const date = new Date(`${d}T00:00:00`);
@@ -65,7 +66,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, productName, className 
               aria-label={`View photo ${i + 1} from ${review.customer_name}`}
             >
               <img
-                src={src}
+                {...photo(src, SIZES.review)}
                 alt=""
                 className="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover/photo:scale-[1.06]"
                 loading="lazy"
@@ -92,7 +93,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, productName, className 
           <DialogTitle className="sr-only">Photo from {review.customer_name}</DialogTitle>
           {open && (
             <img
-              src={open}
+              {...photo(open, "(min-width: 768px) 768px, 100vw")}
               alt={`Photo shared by ${review.customer_name}`}
               className="max-h-[85vh] w-full rounded-xl object-contain"
             />

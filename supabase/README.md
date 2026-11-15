@@ -70,3 +70,29 @@ Dashboard → **Authentication → URL Configuration**:
 ## 6. Redeploy the website
 
 The site's Supabase URL and key changed in the code (`src/integrations/supabase/client.ts`, `.env`). Redeploy the Netlify site after pulling these changes, otherwise the live site keeps talking to the old, deleted project.
+
+## Security hardening (2026-11-15)
+
+Run `supabase/migrations/20261115120000_security_hardening.sql` once in the SQL Editor of the live project
+(`supabase/setup.sql` already includes it for a brand-new project). It:
+
+- stops the sign-up trigger from granting the admin role by email address,
+- removes the public `check_email_exists` function,
+- rebuilds item names, prices and totals of cash-on-delivery / WhatsApp orders from the `products` table,
+- limits the `product-images` bucket to image files up to 15 MB.
+
+Admins are added from the dashboard's Users tab, or in the SQL Editor:
+
+```sql
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'admin' FROM auth.users WHERE email = '<address>'
+ON CONFLICT DO NOTHING;
+```
+
+List the current admins:
+
+```sql
+SELECT u.email, u.created_at, u.last_sign_in_at
+FROM public.user_roles r JOIN auth.users u ON u.id = r.user_id
+WHERE r.role = 'admin';
+```

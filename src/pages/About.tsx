@@ -7,6 +7,7 @@ import SEOHead from "@/components/SEOHead";
 import { Parallax, Reveal, RevealGroup, RevealItem, SplitText, Wipe } from "@/components/motion";
 import { policyConfig } from "@/lib/policyConfig";
 import { PHOTOS } from "@/lib/photos";
+import { photo, SIZES } from "@/lib/photo";
 import { FRAME_FINISHES, TOP_FINISHES, type Finish } from "@/lib/finishes";
 import { cn } from "@/lib/utils";
 
@@ -78,8 +79,10 @@ const About: React.FC = () => {
         <Wipe className="mt-10 aspect-[4/5] rounded-2xl sm:aspect-[16/9] md:mt-14 lg:aspect-[2/1]" delay={0.15}>
           <Parallax amount={80} className="h-[118%] w-full -translate-y-[9%]">
             <img
-              src={PHOTOS.workshop}
+              {...photo(PHOTOS.workshop, SIZES.full)}
               alt="An L-shaped office table with an ash-white top and black frame on the Table LK workshop floor in Bandaragama"
+              width={1600}
+              height={800}
               className="h-full w-full object-cover object-[35%_40%]"
               decoding="async"
             />
@@ -179,8 +182,10 @@ const About: React.FC = () => {
             <figure className="md:col-span-7">
               <Wipe className="aspect-[16/9] rounded-2xl">
                 <img
-                  src={PHOTOS.lShaped}
+                  {...photo(PHOTOS.lShaped, SIZES.wide)}
                   alt="An L-shaped workstation with a teak top on a white steel frame"
+                  width={1280}
+                  height={720}
                   className="h-full w-full object-cover"
                   loading="lazy"
                   decoding="async"
@@ -191,8 +196,10 @@ const About: React.FC = () => {
             <figure className="md:col-span-5">
               <Wipe className="aspect-[4/3] rounded-2xl md:aspect-auto md:h-[calc(100%-2rem)]" delay={0.12}>
                 <img
-                  src={PHOTOS.dining}
+                  {...photo(PHOTOS.dining, SIZES.half)}
                   alt="A dining table with a teak-finish top on a black steel frame"
+                  width={1280}
+                  height={720}
                   className="h-full w-full object-cover"
                   loading="lazy"
                   decoding="async"
@@ -214,8 +221,10 @@ const About: React.FC = () => {
             <figure className="md:col-span-7">
               <Wipe className="aspect-[16/9] rounded-2xl" from="left">
                 <img
-                  src={PHOTOS.computer}
+                  {...photo(PHOTOS.computer, SIZES.wide)}
                   alt="A computer table with a black top on a white steel frame"
+                  width={1280}
+                  height={720}
                   className="h-full w-full object-cover"
                   loading="lazy"
                   decoding="async"
@@ -237,7 +246,7 @@ const About: React.FC = () => {
             {TEAM.map((member) => (
               <RevealItem as="li" key={member.name} className="flex items-start gap-5 border-b border-ink/15 py-6 md:gap-7 md:py-7">
                 <img
-                  src={member.image}
+                  {...photo(member.image, SIZES.small)}
                   alt={`${member.name}, ${member.role} at TableLK`}
                   width={112}
                   height={112}

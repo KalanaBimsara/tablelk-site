@@ -20,6 +20,7 @@ import { TOP_FINISHES, type Finish } from "@/lib/finishes";
 import { formatPrice, formatSize } from "@/lib/format";
 import type { Product } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { photo, showPlaceholder, SIZES } from "@/lib/photo";
 
 /** Categories are spelled several ways in the data ("office", "Office"); match and show them as one. */
 const keyOf = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
@@ -101,11 +102,7 @@ const splitLead = (item: string): [string, string] | null => {
 
 /* ---- Gallery ---- */
 
-const fallbackImage = (e: React.SyntheticEvent<HTMLImageElement>) => {
-  const target = e.target as HTMLImageElement;
-  target.onerror = null;
-  target.src = "/placeholder.svg";
-};
+const fallbackImage = showPlaceholder;
 
 const Gallery: React.FC<{ images: string[]; name: string; index: number; onSelect: (index: number) => void }> = ({
   images,
@@ -131,10 +128,14 @@ const Gallery: React.FC<{ images: string[]; name: string; index: number; onSelec
         <AnimatePresence initial={false}>
           <motion.img
             key={`${index}-${images[index]}`}
-            src={images[index]}
+            {...photo(images[index], SIZES.productMain)}
             alt={count > 1 ? `${name}, photo ${index + 1} of ${count}` : name}
             draggable={false}
+            width={1200}
+            height={900}
             decoding="async"
+            // The first photo is the page's main image: fetch it ahead of the thumbnails.
+            {...(index === 0 ? ({ fetchpriority: "high" } as object) : {})}
             className="absolute inset-0 h-full w-full select-none object-cover"
             initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -166,7 +167,16 @@ const Gallery: React.FC<{ images: string[]; name: string; index: number; onSelec
                     : "opacity-60 hover:opacity-100",
                 )}
               >
-                <img src={image} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" onError={fallbackImage} />
+                <img
+                  {...photo(image, SIZES.productThumb)}
+                  alt={`${name}, photo ${i + 1}`}
+                  width={160}
+                  height={160}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                  onError={fallbackImage}
+                />
               </button>
             </li>
           ))}

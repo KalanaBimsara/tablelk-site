@@ -41,6 +41,7 @@ import { createCardCheckout, startPayHerePayment } from "@/lib/payhere";
 import { formatPrice } from "@/lib/format";
 import { EASE_OUT } from "@/components/motion";
 import { cn } from "@/lib/utils";
+import { photo, showPlaceholder, SIZES } from "@/lib/photo";
 
 type PaymentMethod = "card" | "cod" | "whatsapp";
 
@@ -520,16 +521,12 @@ const Checkout: React.FC = () => {
                   <li key={`${l.product.id}-${l.color || ""}`} className="flex items-start gap-4">
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-ink/10 bg-ash">
                       <img
-                        src={l.product.images?.[0] || "/placeholder.svg"}
+                        {...photo(l.product.images?.[0] || "/placeholder.svg", SIZES.small)}
                         alt=""
                         className="h-full w-full object-cover"
                         loading="lazy"
                         decoding="async"
-                        onError={(e) => {
-                          const t = e.target as HTMLImageElement;
-                          t.onerror = null;
-                          t.src = "/placeholder.svg";
-                        }}
+                        onError={showPlaceholder}
                       />
                     </div>
                     <div className="min-w-0 flex-1">

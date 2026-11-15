@@ -13,6 +13,15 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' &&
     componentTagger(),
+    // The Lovable editor needs its script in the page while editing. It is added by the
+    // dev server only, so the published site does not load a third-party script for it.
+    {
+      name: "lovable-editor-script",
+      apply: "serve" as const,
+      transformIndexHtml: () => [
+        { tag: "script", attrs: { type: "module", src: "https://cdn.gpteng.co/gptengineer.js" }, injectTo: "body" as const },
+      ],
+    },
   ].filter(Boolean),
   resolve: {
     alias: {

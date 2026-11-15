@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EASE_OUT } from "@/components/motion";
 import { PHOTOS } from "@/lib/photos";
+import { photo as smallCopy, SIZES } from "@/lib/photo";
 
 /*
   Shared pieces for the account screens (log in, register, forgot and reset password, admin
@@ -55,7 +56,7 @@ export const AuthShell: React.FC<AuthShellProps> = ({ title, help, footer, photo
         {form}
         <div className="hidden aspect-[4/3] overflow-hidden rounded-2xl bg-secondary lg:block">
           <img
-            src={photo.src}
+            {...smallCopy(photo.src, SIZES.half)}
             alt={photo.alt}
             className="h-full w-full object-cover"
             style={{ objectPosition: photo.position }}

@@ -17,6 +17,7 @@ import { Parallax, Reveal, RevealGroup, RevealItem, SplitText, Wipe } from "@/co
 import { supabase } from "@/integrations/supabase/client";
 import { policyConfig } from "@/lib/policyConfig";
 import { PHOTOS } from "@/lib/photos";
+import { photo, SIZES } from "@/lib/photo";
 import { FRAME_FINISHES, TOP_FINISHES, type Finish } from "@/lib/finishes";
 import { useHomeReviews } from "@/hooks/useCustomerReviews";
 import { useProducts } from "@/hooks/useProducts";
@@ -166,8 +167,10 @@ const ProcessSection: React.FC = () => (
         <Wipe className="aspect-[4/5] rounded-2xl sm:aspect-[5/4] lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:aspect-[4/5]">
           <Parallax amount={70} className="h-[116%] w-full -translate-y-[8%]">
             <img
-              src={PHOTOS.workshop}
+              {...photo(PHOTOS.workshop, SIZES.half)}
               alt="An L-shaped office table on the Table LK workshop floor in Bandaragama"
+              width={800}
+              height={1000}
               className="h-full w-full object-cover object-[35%_40%]"
               loading="lazy"
               decoding="async"

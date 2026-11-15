@@ -1,1 +1,7 @@
-/*    /index.html   200
+# Old short addresses move to the real pages.
+# There is no catch-all rule here on purpose: every page has its own HTML file
+# (see scripts/seo-build.mjs) and unknown addresses get 404.html with status 404.
+/terms          /terms-and-conditions   301
+/privacy        /privacy-policy         301
+/returns        /return-policy          301
+/refund-policy  /return-policy          301

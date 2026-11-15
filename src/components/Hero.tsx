@@ -5,6 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useHeroSlides } from "@/hooks/useHeroSlides";
 import { EASE_OUT, SplitText } from "./motion";
+import { photo, SIZES } from "@/lib/photo";
 
 const ROTATE_MS = 6500;
 
@@ -95,8 +96,10 @@ const Hero: React.FC = () => {
               aria-hidden={!isCurrent}
             >
               <motion.img
-                src={slide.image_url}
+                {...photo(slide.image_url, SIZES.full)}
                 alt={isCurrent ? slide.alt : ""}
+                width={1600}
+                height={900}
                 className="h-full w-full object-cover"
                 style={{ objectPosition: slide.object_position }}
                 decoding="async"

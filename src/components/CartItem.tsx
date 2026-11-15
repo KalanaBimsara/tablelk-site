@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Product } from "@/lib/data";
 import { useCart, MAX_ITEM_QUANTITY } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
+import { photo, showPlaceholder, SIZES } from "@/lib/photo";
 import { EASE_OUT } from "@/components/motion";
 
 interface CartItemProps {
@@ -42,16 +43,12 @@ const CartItem = React.forwardRef<HTMLLIElement, CartItemProps>(({ product, quan
           aria-hidden="true"
         >
           <img
-            src={product.images?.[0] || "/placeholder.svg"}
+            {...photo(product.images?.[0] || "/placeholder.svg", SIZES.small)}
             alt=""
             className="h-full w-full object-cover"
             loading="lazy"
             decoding="async"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src = "/placeholder.svg";
-            }}
+            onError={showPlaceholder}
           />
         </Link>
 

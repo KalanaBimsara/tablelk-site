@@ -5,6 +5,7 @@ import { Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import { formatPrice, formatSize } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { photo, showPlaceholder, SIZES } from "@/lib/photo";
 
 interface ProductCardProps {
   product: Product;
@@ -34,16 +35,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       <Link to={`/product/${product.id}`} className="flex h-full flex-col rounded-xl" aria-label={`${product.name}, ${formatPrice(product.price)}`}>
         <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-secondary">
           <img
-            src={image}
+            {...photo(image, SIZES.card)}
             alt={product.name}
+            width={400}
+            height={500}
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out-expo group-hover:scale-[1.06]"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src = "/placeholder.svg";
-            }}
+            onError={showPlaceholder}
           />
           {!product.inStock && (
             <span className="label absolute left-3 top-3 rounded-full bg-ink px-2.5 py-1 text-white">Out of stock</span>

@@ -10,12 +10,10 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AuthError, AuthShell, PasswordField } from "./Login";
 
-// Map admin username to a stable email used in Supabase Auth
-const usernameToEmail = (username: string) => {
-  const u = username.trim().toLowerCase();
-  if (u === "kalanabimsara") return "kalanabimsara@tablelk.com";
-  return `${u}@tablelk.com`;
-};
+// Admin accounts sign in as <username>@tablelk.com. This page only signs in:
+// it never creates accounts. Admin rights come from a row in public.user_roles,
+// which only an existing admin (Users tab) or the database owner (SQL editor) can add.
+const usernameToEmail = (username: string) => `${username.trim().toLowerCase()}@tablelk.com`;
 
 const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -37,33 +35,19 @@ const AdminLogin: React.FC = () => {
     setSubmitting(true);
     const email = usernameToEmail(username);
     try {
-      // Try sign in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        // First-time bootstrap: if super admin account doesn't exist yet, create it.
-        if (
-          email === "kalanabimsara@tablelk.com" &&
-          (signInError.message?.toLowerCase().includes("invalid") ||
-            signInError.message?.toLowerCase().includes("credentials"))
-        ) {
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/admin`,
-              data: { full_name: "KalanaBimsara" },
-            },
-          });
-          if (signUpError) throw signUpError;
-          // Try sign-in again (works when email confirmation is disabled)
-          const { error: retryErr } = await supabase.auth.signInWithPassword({ email, password });
-          if (retryErr) {
-            toast.success("Admin account created. Please confirm the email if required, then sign in.");
-            return;
-          }
-        } else {
-          throw signInError;
-        }
+      const { data: signedIn, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError || !signedIn.user) throw new Error("Incorrect username or password.");
+
+      // A valid sign-in is not enough: the account must hold the admin role.
+      const { data: role } = await (supabase as any)
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", signedIn.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (!role) {
+        await supabase.auth.signOut();
+        throw new Error("This account does not have admin access.");
       }
       toast.success("Welcome, admin");
       navigate("/admin");

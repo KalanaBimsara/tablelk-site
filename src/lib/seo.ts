@@ -84,9 +84,55 @@ const sentence = (text: string) => {
 
 type ReviewLike = { customer_name: string; rating: number; review: string; review_date: string };
 
+/** "2–5 working days" becomes [2, 5]. */
+const dayRange = (text: string): [number, number] | null => {
+  const m = text.match(/(\d+)\D+(\d+)/);
+  return m ? [Number(m[1]), Number(m[2])] : null;
+};
+
+/** The return window from the Return & Refund Policy, in the form Google reads for product results. */
+const returnPolicyLd = () => ({
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: "LK",
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: policyConfig.returnWindowDays,
+  merchantReturnLink: `${SITE}/return-policy`,
+});
+
+/**
+ * Delivery charge and delivery time for Sri Lanka. Only written while every district pays the
+ * same charge; with two rates the markup would need one entry per region.
+ */
+const shippingLd = () => {
+  const western: number = policyConfig.deliveryFee.western;
+  const other: number = policyConfig.deliveryFee.other;
+  if (western !== other) return undefined;
+  const near = dayRange(policyConfig.colomboDeliveryDays);
+  const far = dayRange(policyConfig.outstationDeliveryDays);
+  return {
+    "@type": "OfferShippingDetails",
+    shippingRate: { "@type": "MonetaryAmount", value: other, currency: "LKR" },
+    shippingDestination: { "@type": "DefinedRegion", addressCountry: "LK" },
+    ...(near && far
+      ? {
+          deliveryTime: {
+            "@type": "ShippingDeliveryTime",
+            transitTime: {
+              "@type": "QuantitativeValue",
+              minValue: Math.min(near[0], far[0]),
+              maxValue: Math.max(near[1], far[1]),
+              unitCode: "DAY",
+            },
+          },
+        }
+      : {}),
+  };
+};
+
 /** Product data for Google's product results. Ratings appear only when real customer reviews exist. */
 export const productLd = (product: Product, reviews: ReviewLike[] = []) => {
   const url = absoluteUrl(`/product/${product.id}`);
+  const shipping = shippingLd();
   const ld: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -106,6 +152,8 @@ export const productLd = (product: Product, reviews: ReviewLike[] = []) => {
       itemCondition: "https://schema.org/NewCondition",
       seller: { "@type": "Organization", name: policyConfig.brandName },
       areaServed: "LK",
+      hasMerchantReturnPolicy: returnPolicyLd(),
+      ...(shipping ? { shippingDetails: shipping } : {}),
     },
   };
   if (reviews.length > 0) {

@@ -29,9 +29,25 @@ declare global {
 
 let initStarted = false;
 
-const whenBodyReady = (cb: () => void) => {
-  if (document.body) cb();
-  else document.addEventListener("DOMContentLoaded", cb, { once: true });
+// The chat is about 400 KB of script. Loaded with the page, it held back the first paint on
+// phones, so it now waits for the visitor's first scroll, tap, key press or pointer move,
+// or for WAIT_MS on a page nobody touches, whichever comes first.
+const WAKE_EVENTS = ["pointerdown", "pointermove", "touchstart", "keydown", "scroll", "wheel"] as const;
+const WAIT_MS = 10_000;
+
+const whenVisitorIsActive = (cb: () => void) => {
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    WAKE_EVENTS.forEach((name) => window.removeEventListener(name, start));
+    window.clearTimeout(timer);
+    // Let the scroll or tap that woke us finish before the download starts.
+    if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => cb(), { timeout: 2000 });
+    else window.setTimeout(cb, 200);
+  };
+  WAKE_EVENTS.forEach((name) => window.addEventListener(name, start, { passive: true }));
+  const timer = window.setTimeout(start, WAIT_MS);
 };
 
 const loadInjectScript = () =>
@@ -84,7 +100,7 @@ const BotpressInjector = () => {
     if (initStarted) return;
     initStarted = true;
 
-    whenBodyReady(() => {
+    whenVisitorIsActive(() => {
       if (!document.getElementById(STYLE_ID)) {
         const style = document.createElement("style");
         style.id = STYLE_ID;
